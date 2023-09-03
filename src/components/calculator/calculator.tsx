@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import calculate from "ultra-calc";
 
 const buttons = [
   ["(", ")", "Reset", "Clear"],
@@ -31,9 +32,40 @@ const symbol: { [key: string]: React.ReactNode } = {
   ["Reset"]: <span className="text-xl">Reset</span>,
 };
 
+const getResult = (input: string) => {
+  let newInput = "";
+  for (const x of input) {
+    switch (x) {
+      case symbol["/"]:
+        newInput += "/";
+        break;
+      case symbol["*"]:
+        newInput += "*";
+        break;
+      case symbol["+"]:
+        newInput += "+";
+        break;
+      case symbol["-"]:
+        newInput += "-";
+        break;
+      default:
+        newInput += x;
+    }
+  }
+  return calculate(newInput);
+};
+
 export default function Calculator() {
   const [input, setInput] = useState<string>("");
   const [result, setResult] = useState<string>("");
+
+  useEffect(() => {
+    try {
+      setResult(getResult(input));
+    } catch {
+      // here goes error
+    }
+  }, [input]);
 
   return (
     <div className="w-[100vw] h-[100vh] flex justify-center items-center">
@@ -55,7 +87,6 @@ export default function Calculator() {
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              setResult(e.target.value);
             }}
           />
         </div>
@@ -68,6 +99,27 @@ export default function Calculator() {
                     <button
                       key={`${i}${j}`}
                       className="w-full bg-slate-800 p-3 flex items-center justify-center text-3xl active:scale-90 border border-gray-500 active:rounded-lg transition"
+                      onClick={() => {
+                        switch (btn) {
+                          case "Reset":
+                            setInput("");
+                            break;
+                          case "Clear":
+                            setInput((input) =>
+                              input.slice(0, input.length - 1)
+                            );
+                            break;
+                          case "=":
+                            getResult(input);
+                            break;
+                          case ".":
+                            if (!input.includes("."))
+                              setInput((input) => input + ".");
+                            break;
+                          default:
+                            setInput((input) => input + symbol[btn]);
+                        }
+                      }}
                     >
                       {symbol[btn]}
                     </button>
