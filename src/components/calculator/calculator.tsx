@@ -63,7 +63,7 @@ export default function Calculator() {
     try {
       setResult(getResult(input));
     } catch {
-      // here goes error
+      setResult("Invalid Syntax");
     }
   }, [input]);
 
